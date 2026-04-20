@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Comunitario: Árbol de Objetivos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        .tree-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        .node {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 300px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .node-root { background-color: #d1fae5; border: 2px solid #10b981; color: #065f46; } /* Raíces/Medios */
+        .node-trunk { background-color: #dbeafe; border: 2px solid #3b82f6; color: #1e40af; font-weight: 700; font-size: 1.1rem; } /* Tronco/Objetivo */
+        .node-branch { background-color: #fef3c7; border: 2px solid #f59e0b; color: #92400e; } /* Ramas/Fines */
+
+        .connector-v {
+            width: 2px;
+            height: 40px;
+            background-color: #cbd5e1;
+        }
+
+        .grid-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .tab-active {
+            border-bottom: 4px solid #3b82f6;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-white shadow-sm p-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800">Gestión Hídrica Comunitaria</h1>
+            <div class="flex space-x-4">
+                <button onclick="switchView('objetivos')" id="btn-obj" class="px-4 py-2 font-semibold tab-active transition-all">Árbol de Objetivos</button>
+                <button onclick="switchView('problemas')" id="btn-prob" class="px-4 py-2 font-semibold text-gray-500 hover:text-blue-500 transition-all">Árbol de Problemas</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto py-8 px-4">
+        <!-- Encabezado de Contexto -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h2 id="view-title" class="text-2xl font-bold text-blue-900 mb-2">Árbol de Objetivos</h2>
+            <p id="view-desc" class="text-gray-600 italic">Transformación de la realidad actual hacia una situación deseada.</p>
+        </div>
+
+        <div id="tree-canvas" class="tree-container bg-white rounded-2xl shadow-inner border border-gray-100 overflow-x-auto">
+            <!-- SECCIÓN: RAMAS / FINES (Impactos) -->
+            <div class="grid-row" id="upper-nodes">
+                <!-- Se llena con JS -->
+            </div>
+
+            <div class="connector-v"></div>
+
+            <!-- SECCIÓN: TRONCO / OBJETIVO CENTRAL -->
+            <div class="node node-trunk" id="center-node">
+                <!-- Se llena con JS -->
+            </div>
+
+            <div class="connector-v"></div>
+
+            <!-- SECCIÓN: RAÍCES / MEDIOS (Causas transformadas) -->
+            <div class="grid-row" id="lower-nodes">
+                <!-- Se llena con JS -->
+            </div>
+        </div>
+
+        <!-- Ficha de Priorización (Específicamente solicitada en la instrucción 3 y 4) -->
+        <div class="mt-8 grid md:grid-cols-2 gap-6">
+            <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                <h3 class="font-bold text-green-800 mb-2">Causa Raíz Priorizada</h3>
+                <p class="text-green-900">Deficiencia en la infraestructura y cultura de saneamiento de aguas residuales domésticas.</p>
+                <p class="text-sm mt-2 text-green-700 italic">Seleccionada por ser transformable mediante autogestión comunitaria y educación.</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                <h3 class="font-bold text-blue-800 mb-2">Objetivo de Cambio (Acción)</h3>
+                <p class="text-blue-900 font-semibold">"Implementar un sistema de saneamiento ecológico y programas de educación ambiental para recuperar la calidad del agua en la comunidad."</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const data = {
+            objetivos: {
+                title: "Árbol de Objetivos",
+                desc: "Representación de los medios y fines para alcanzar la sostenibilidad hídrica.",
+                fines: [
+                    "Mejora en la salud pública y reducción de enfermedades gastrointestinales.",
+                    "Recuperación de la biodiversidad en ecosistemas acuáticos locales.",
+                    "Aumento de la disponibilidad de agua apta para consumo y riego.",
+                    "Fortalecimiento del tejido social y la gobernanza comunitaria."
+                ],
+                central: "Garantizar el acceso a agua limpia y saneamiento sostenible mediante la gestión comunitaria eficiente.",
+                medios: [
+                    "Fortalecer la educación ambiental sobre el ciclo del agua.",
+                    "Construir infraestructura de tratamiento de aguas residuales.",
+                    "Promover leyes y acuerdos comunitarios de protección hídrica.",
+                    "Implementar sistemas de monitoreo participativo de calidad del agua."
+                ],
+                classSuffix: "node-branch",
+                classTrunk: "node-trunk",
+                classRoot: "node-root"
+            },
+            problemas: {
+                title: "Árbol de Problemas",
+                desc: "Análisis de las causas raíz y las consecuencias de la crisis hídrica local.",
+                fines: [
+                    "Altas tasas de mortalidad infantil por infecciones hídricas.",
+                    "Pérdida total de fauna nativa en arroyos y ríos.",
+                    "Escasez crítica de agua potable durante todo el año.",
+                    "Conflictos sociales por el acceso limitado al recurso."
+                ],
+                central: "Contaminación severa y mala distribución del recurso hídrico en la zona urbana.",
+                medios: [
+                    "Falta de conocimiento sobre el manejo de residuos.",
+                    "Inexistencia de alcantarillado y plantas de tratamiento.",
+                    "Ausencia de marcos legales y vigilancia comunitaria.",
+                    "Uso ineficiente e industrial del agua sin control."
+                ],
+                classSuffix: "bg-red-100 border-red-400 text-red-800",
+                classTrunk: "bg-red-600 text-white border-red-800",
+                classRoot: "bg-orange-100 border-orange-400 text-orange-800"
+            }
+        };
+
+        function renderTree(type) {
+            const current = data[type];
+            document.getElementById('view-title').innerText = current.title;
+            document.getElementById('view-desc').innerText = current.desc;
+
+            // Render Fines (Upper)
+            const upper = document.getElementById('upper-nodes');
+            upper.innerHTML = '';
+            current.fines.forEach(text => {
+                const div = document.createElement('div');
+                div.className = `node ${type === 'objetivos' ? 'node-branch' : current.classSuffix}`;
+                div.innerText = text;
+                upper.appendChild(div);
+            });
+
+            // Render Central
+            const center = document.getElementById('center-node');
+            center.className = `node ${type === 'objetivos' ? 'node-trunk' : current.classTrunk}`;
+            center.innerText = current.central;
+
+            // Render Medios (Lower)
+            const lower = document.getElementById('lower-nodes');
+            lower.innerHTML = '';
+            current.medios.forEach(text => {
+                const div = document.createElement('div');
+                div.className = `node ${type === 'objetivos' ? 'node-root' : current.classRoot}`;
+                div.innerText = text;
+                lower.appendChild(div);
+            });
+        }
+
+        function switchView(type) {
+            document.getElementById('btn-obj').className = type === 'objetivos' ? 'px-4 py-2 font-semibold tab-active' : 'px-4 py-2 font-semibold text-gray-500 hover:text-blue-500';
+            document.getElementById('btn-prob').className = type === 'problemas' ? 'px-4 py-2 font-semibold tab-active border-red-500 text-red-500' : 'px-4 py-2 font-semibold text-gray-500 hover:text-blue-500';
+            
+            if(type === 'problemas') {
+                document.getElementById('btn-prob').style.borderBottomColor = '#ef4444';
+                document.getElementById('btn-prob').style.color = '#ef4444';
+            } else {
+                document.getElementById('btn-prob').style.borderBottom = 'none';
+            }
+            
+            renderTree(type);
+        }
+
+        // Inicializar
+        window.onload = () => renderTree('objetivos');
+    </script>
+</body>
+</html>
